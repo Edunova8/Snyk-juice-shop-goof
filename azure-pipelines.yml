@@ -8,10 +8,6 @@ pr:
     include:
       - master
 
-variables:
-  SNYK_TOKEN: $(SNYK_TOKEN)
-  # Se necessário:
-  # SNYK_ORG: $(SNYK_ORG)
 
 pool:
   vmImage: 'ubuntu-latest'
