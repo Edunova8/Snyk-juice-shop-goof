@@ -1,13 +1,92 @@
-pool: Azure Pipelines 
+trigger:
+  branches:
+    include:
+      - master
 
-steps:
-  - checkout: self
+pr:
+  branches:
+    include:
+      - master
 
-  - task: SnykSecurityScan@1
-    inputs:
-      serviceConnectionEndpoint: 'Snyk CI'
-      testType: 'app'
-      monitorWhen: 'always'
-      failOnIssues: false
-      
+variables:
+  SNYK_TOKEN: $(SNYK_TOKEN)
+  # Se necessário:
+  # SNYK_ORG: $(SNYK_ORG)
 
+pool:
+  vmImage: 'Azure Pipelines'
+
+jobs:
+  - job: snyk_os
+    displayName: 'Snyk Open Source Scan + Monitor'
+    continueOnError: true
+    steps:
+      - checkout: self
+
+      - script: |
+          wget -O snyk https://static.snyk.io/cli/latest/snyk-linux
+          chmod +x ./snyk
+          sudo mv ./snyk /usr/local/bin/
+        displayName: 'Install Snyk CLI'
+
+      - script: |
+          npm install
+          snyk auth $(SNYK_TOKEN)
+          snyk test
+          snyk monitor
+        displayName: 'Run Snyk Open Source Scan'
+
+  - job: snyk_code
+    displayName: 'Snyk Code Scan'
+    continueOnError: true
+    steps:
+      - checkout: self
+
+      - script: |
+          wget -O snyk https://static.snyk.io/cli/latest/snyk-linux
+          chmod +x ./snyk
+          sudo mv ./snyk /usr/local/bin/
+        displayName: 'Install Snyk CLI'
+
+      - script: |
+          snyk auth $(SNYK_TOKEN)
+          snyk code test
+        displayName: 'Run Snyk Code Scan'
+
+  - job: snyk_container
+    displayName: 'Snyk Container Scan'
+    continueOnError: true
+    steps:
+      - checkout: self
+
+      - script: docker build . --file Dockerfile --tag boosef-juiceshop:latest
+        displayName: 'Build Docker Image'
+
+      - script: |
+          wget -O snyk https://static.snyk.io/cli/latest/snyk-linux
+          chmod +x ./snyk
+          sudo mv ./snyk /usr/local/bin/
+        displayName: 'Install Snyk CLI'
+
+      - script: |
+          snyk auth $(SNYK_TOKEN)
+          snyk container test boosef-juiceshop:latest --file=Dockerfile
+          snyk container monitor boosef-juiceshop:latest --file=Dockerfile
+        displayName: 'Run Snyk Container Scan'
+
+  - job: snyk_iac
+    displayName: 'Snyk IaC Scan'
+    continueOnError: true
+    steps:
+      - checkout: self
+
+      - script: |
+          wget -O snyk https://static.snyk.io/cli/latest/snyk-linux
+          chmod +x ./snyk
+          sudo mv ./snyk /usr/local/bin/
+        displayName: 'Install Snyk CLI'
+
+      - script: |
+          snyk auth $(SNYK_TOKEN)
+          snyk iac test --report
+        displayName: 'Run Snyk IaC Scan'
