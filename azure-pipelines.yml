@@ -9,5 +9,5 @@ steps:
       testType: 'app'
       monitorWhen: 'always'
       failOnIssues: false
-      additionalArguments: '--all-projects --sarif-file-output=CodeAnalysisLogs/snyk-open-source.sarif'
+      
 
