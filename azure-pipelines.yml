@@ -27,6 +27,7 @@ jobs:
 
       - script: |
           npm install
+          snyk config set endpoint=https://api.us.snyk.io
           snyk auth $(SNYK_TOKEN)
           snyk test
           snyk monitor
@@ -46,6 +47,7 @@ jobs:
 
       - script: |
           snyk auth $(SNYK_TOKEN)
+          snyk config set endpoint=https://api.us.snyk.io
           snyk code test
         displayName: 'Run Snyk Code Scan'
 
@@ -65,6 +67,7 @@ jobs:
         displayName: 'Install Snyk CLI'
 
       - script: |
+          snyk config set endpoint=https://api.us.snyk.io
           snyk auth $(SNYK_TOKEN)
           snyk container test boosef-juiceshop:latest --file=Dockerfile
           snyk container monitor boosef-juiceshop:latest --file=Dockerfile
@@ -83,6 +86,7 @@ jobs:
         displayName: 'Install Snyk CLI'
 
       - script: |
+          snyk config set endpoint=https://api.us.snyk.io
           snyk auth $(SNYK_TOKEN)
           snyk iac test --report
         displayName: 'Run Snyk IaC Scan'
