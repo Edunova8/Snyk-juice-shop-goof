@@ -14,7 +14,7 @@ variables:
   # SNYK_ORG: $(SNYK_ORG)
 
 pool:
-  vmImage: 'Azure Pipelines'
+  vmImage: 'ubuntu-latest'
 
 jobs:
   - job: snyk_os
