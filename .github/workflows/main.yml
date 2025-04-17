@@ -1,0 +1,26 @@
+name: snyk
+on:
+  push:
+    branches:
+      - master
+jobs:
+  snyk-code:
+    environment: snyk
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: snyk/actions/setup@master
+      - name: Install dependencies
+        run: npm install
+      - name: Configure Snyk endpoint
+        run: snyk config set endpoint=https://api.us.snyk.io
+      - name: Authenticate with Snyk
+        run: snyk auth ${{ secrets_SNYK_TOKEN }}
+      - name: Snyk Code Test
+        run: snyk code test --fail-on=all --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets_SNYK_TOKEN }}
+      - name: Snyk Monitor
+        run: snyk monitor
+        env:
+          SNYK_TOKEN: ${{ secrets_SNYK_TOKEN }}
